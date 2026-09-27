@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="MaxHack - práctica interactiva de hacking ético" />
-  <title>MaxHack | Entrena tus conocimientos</title>
+  <meta name="description" content="MaxHack - modo estudio interactivo de hacking ético" />
+  <title>MaxHack | Modo estudio</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -22,29 +22,22 @@
 
     <main>
       <section id="startScreen" class="panel hero-panel">
-        <span class="eyebrow">MVP v1.0</span>
-        <h2>Prueba interactiva de Hacking Ético</h2>
-        <p class="lead">20 preguntas de práctica distribuidas en 4 capítulos. Recibirás retroalimentación inmediata y un resumen por capítulo al finalizar.</p>
+        <span class="eyebrow">Modo estudio</span>
+        <h2>Estudia Hacking Ético con práctica guiada</h2>
+        <p class="lead">Responde una pregunta a la vez. Después de cada respuesta recibirás retroalimentación inmediata y una explicación breve para reforzar el contenido.</p>
 
         <div class="stats-grid">
-          <div class="stat-card"><strong>20</strong><span>Preguntas</span></div>
+          <div class="stat-card"><strong id="availableQuestions">20</strong><span>Preguntas disponibles</span></div>
           <div class="stat-card"><strong>4</strong><span>Capítulos</span></div>
-          <div class="stat-card"><strong>1</strong><span>Intento local</span></div>
+          <div class="stat-card"><strong>1</strong><span>Sesión de estudio</span></div>
         </div>
 
-        <div class="start-options">
-          <label class="checkbox-row">
-            <input type="checkbox" id="shuffleQuestions" checked />
-            <span>Mezclar orden de las preguntas</span>
-          </label>
-          <label class="checkbox-row">
-            <input type="checkbox" id="shuffleAnswers" checked />
-            <span>Mezclar alternativas</span>
-          </label>
+        <div class="study-notice" role="note" aria-label="Aviso sobre el banco de preguntas">
+          <strong>Importante</strong>
+          <p>En cada intento, MaxHack puede cambiar el orden de las preguntas y de las alternativas. A medida que el banco crezca, también podrás recibir preguntas distintas entre una sesión y otra.</p>
         </div>
 
-        <button id="startBtn" class="btn btn-primary">Comenzar prueba</button>
-        <p class="small-note">Las preguntas se cargan desde <code>preguntas.json</code>, por lo que el banco puede crecer sin modificar la interfaz.</p>
+        <button id="startBtn" class="btn btn-primary">Comenzar estudio</button>
       </section>
 
       <section id="quizScreen" class="hidden">
@@ -75,8 +68,8 @@
 
       <section id="resultScreen" class="hidden">
         <div class="panel results-panel">
-          <span class="eyebrow">Resultado</span>
-          <h2>Tu desempeño en MaxHack</h2>
+          <span class="eyebrow">Resumen de estudio</span>
+          <h2>Tu avance en MaxHack</h2>
           <div class="result-score">
             <div id="scoreCircle" class="score-circle"><span id="scorePercent">0%</span></div>
             <div>
@@ -89,12 +82,12 @@
           <div id="chapterResults" class="chapter-results"></div>
 
           <details class="review-block">
-            <summary>Revisar respuestas</summary>
+            <summary>Revisar respuestas y explicaciones</summary>
             <div id="reviewContainer"></div>
           </details>
 
           <div class="action-row">
-            <button id="restartBtn" class="btn btn-primary">Intentar nuevamente</button>
+            <button id="restartBtn" class="btn btn-primary">Estudiar nuevamente</button>
           </div>
         </div>
       </section>
@@ -108,8 +101,8 @@
     </main>
 
     <footer>
-      <span>MaxHack · MVP académico</span>
-      <span id="footerVersion">Banco v1.0</span>
+      <span>MaxHack · Modo estudio</span>
+      <span id="footerVersion">Banco v1.1</span>
     </footer>
   </div>
 

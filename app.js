@@ -1,12 +1,11 @@
 const state = {
   questions: [],
+  activeQuestions: [],
   currentIndex: 0,
   selectedKey: null,
   answered: false,
   correctCount: 0,
-  responses: [],
-  shuffleQuestions: true,
-  shuffleAnswers: true
+  responses: []
 };
 
 const $ = (id) => document.getElementById(id);
@@ -40,6 +39,7 @@ async function loadQuestions() {
     if (!Array.isArray(data) || data.length === 0) throw new Error("Banco vacío");
     state.questions = data;
     $("topbarMeta").textContent = `${data.length} preguntas disponibles`;
+    $("availableQuestions").textContent = data.length;
   } catch (error) {
     console.error(error);
     showScreen("error");
@@ -53,24 +53,25 @@ function normalizeQuestion(q) {
     { key: "C", text: q.opcion_c },
     { key: "D", text: q.opcion_d }
   ];
+
+  // En modo estudio el orden se mezcla automáticamente en cada sesión.
   return {
     ...q,
-    options: state.shuffleAnswers ? shuffle(options) : options
+    options: shuffle(options)
   };
 }
 
 function startQuiz() {
-  state.shuffleQuestions = $("shuffleQuestions").checked;
-  state.shuffleAnswers = $("shuffleAnswers").checked;
   state.currentIndex = 0;
   state.selectedKey = null;
   state.answered = false;
   state.correctCount = 0;
   state.responses = [];
 
-  let bank = [...state.questions];
-  if (state.shuffleQuestions) bank = shuffle(bank);
+  // El usuario no elige la aleatoriedad: MaxHack la aplica como parte del estudio.
+  const bank = shuffle([...state.questions]);
   state.activeQuestions = bank.map(normalizeQuestion);
+
   showScreen("quiz");
   renderQuestion();
 }
@@ -94,12 +95,14 @@ function renderQuestion() {
 
   const container = $("answersContainer");
   container.innerHTML = "";
+
   q.options.forEach(option => {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "answer-option";
     button.dataset.key = option.key;
-    button.innerHTML = `<span class="answer-key">${option.key}</span><span>${escapeHtml(option.text)}</span>`;
+    button.dataset.text = option.text;
+    button.innerHTML = `<span class="answer-text">${escapeHtml(option.text)}</span>`;
     button.addEventListener("click", () => selectAnswer(option.key));
     container.appendChild(button);
   });
@@ -114,19 +117,28 @@ function selectAnswer(key) {
   $("submitBtn").disabled = false;
 }
 
+function optionTextByKey(q, key) {
+  const option = q.options.find(item => item.key === key);
+  return option ? option.text : "";
+}
+
 function submitAnswer() {
   if (!state.selectedKey || state.answered) return;
   state.answered = true;
+
   const q = state.activeQuestions[state.currentIndex];
   const isCorrect = state.selectedKey === q.respuesta_correcta;
+  const selectedText = optionTextByKey(q, state.selectedKey);
+  const correctText = optionTextByKey(q, q.respuesta_correcta);
+
   if (isCorrect) state.correctCount += 1;
 
   state.responses.push({
     id: q.id_pregunta,
     chapter: q.capitulo,
     question: q.pregunta,
-    selected: state.selectedKey,
-    correct: q.respuesta_correcta,
+    selectedText,
+    correctText,
     isCorrect,
     explanation: q.explicacion
   });
@@ -141,12 +153,15 @@ function submitAnswer() {
   const feedback = $("feedbackBox");
   feedback.classList.remove("hidden");
   feedback.classList.add(isCorrect ? "success" : "error");
-  feedback.innerHTML = `<strong>${isCorrect ? "Respuesta correcta" : "Respuesta incorrecta"}</strong>${escapeHtml(q.explicacion)}`;
+  feedback.innerHTML = `
+    <strong>${isCorrect ? "Respuesta correcta" : "Respuesta incorrecta"}</strong>
+    <p>${escapeHtml(q.explicacion)}</p>
+  `;
 
   $("scoreLive").textContent = `${state.correctCount} correctas`;
   $("submitBtn").classList.add("hidden");
   $("nextBtn").classList.remove("hidden");
-  $("nextBtn").textContent = state.currentIndex === state.activeQuestions.length - 1 ? "Ver resultados" : "Siguiente";
+  $("nextBtn").textContent = state.currentIndex === state.activeQuestions.length - 1 ? "Ver resumen" : "Siguiente";
 }
 
 function nextQuestion() {
@@ -161,6 +176,7 @@ function nextQuestion() {
 function showResults() {
   const total = state.activeQuestions.length;
   const percent = Math.round((state.correctCount / total) * 100);
+
   $("progressBar").style.width = "100%";
   $("scorePercent").textContent = `${percent}%`;
   $("scoreCircle").style.setProperty("--score", `${percent}%`);
@@ -176,23 +192,29 @@ function showResults() {
 
   const chapterResults = $("chapterResults");
   chapterResults.innerHTML = "";
+
   Object.keys(byChapter).sort((a,b) => Number(a)-Number(b)).forEach(chapter => {
     const item = byChapter[chapter];
     const p = Math.round((item.correct / item.total) * 100);
     chapterResults.insertAdjacentHTML("beforeend", `
       <div class="chapter-row">
-        <div><strong>Capítulo ${chapter}</strong><small>${item.correct} de ${item.total} correctas</small></div>
+        <div>
+          <strong>Capítulo ${chapter}</strong>
+          <small>${item.correct} de ${item.total} correctas</small>
+        </div>
         <strong>${p}%</strong>
       </div>`);
   });
 
   const review = $("reviewContainer");
   review.innerHTML = "";
+
   state.responses.forEach((r, idx) => {
     review.insertAdjacentHTML("beforeend", `
       <div class="review-item ${r.isCorrect ? "ok" : "bad"}">
         <strong>${idx + 1}. ${escapeHtml(r.question)}</strong>
-        <p>Tu respuesta: <strong>${r.selected}</strong> · Correcta: <strong>${r.correct}</strong></p>
+        <p>Tu respuesta: <strong>${escapeHtml(r.selectedText)}</strong></p>
+        ${r.isCorrect ? "" : `<p>Respuesta correcta: <strong>${escapeHtml(r.correctText)}</strong></p>`}
         <p class="explain">${escapeHtml(r.explanation)}</p>
       </div>`);
   });
@@ -201,10 +223,11 @@ function showResults() {
 }
 
 function messageForScore(percent) {
-  if (percent >= 90) return "Muy buen dominio del contenido. Revisa solo los errores puntuales.";
-  if (percent >= 75) return "Buen resultado. Conviene reforzar los capítulos con menor porcentaje.";
-  if (percent >= 60) return "Vas avanzando. Revisa las explicaciones y vuelve a intentarlo.";
-  return "Este intento sirve como diagnóstico. Repasa los conceptos y prueba nuevamente.";
+  if (percent === 100) return "Excelente. Respondiste correctamente todas las preguntas de esta sesión.";
+  if (percent >= 90) return "Muy buen dominio del contenido. Revisa solo los conceptos en los que tuviste errores.";
+  if (percent >= 75) return "Buen avance. Refuerza los capítulos con menor porcentaje y vuelve a practicar.";
+  if (percent >= 60) return "Vas avanzando. Revisa las explicaciones y realiza una nueva sesión de estudio.";
+  return "Usa este resultado como diagnóstico. Repasa los conceptos y vuelve a practicar.";
 }
 
 function escapeHtml(value) {
