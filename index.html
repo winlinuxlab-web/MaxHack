@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="MaxHack - práctica interactiva de hacking ético" />
+  <title>MaxHack | Entrena tus conocimientos</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">MH</div>
+        <div>
+          <h1>MaxHack</h1>
+          <p>Entrena · Practica · Mejora</p>
+        </div>
+      </div>
+      <div class="topbar-meta" id="topbarMeta"></div>
+    </header>
+
+    <main>
+      <section id="startScreen" class="panel hero-panel">
+        <span class="eyebrow">MVP v1.0</span>
+        <h2>Prueba interactiva de Hacking Ético</h2>
+        <p class="lead">20 preguntas de práctica distribuidas en 4 capítulos. Recibirás retroalimentación inmediata y un resumen por capítulo al finalizar.</p>
+
+        <div class="stats-grid">
+          <div class="stat-card"><strong>20</strong><span>Preguntas</span></div>
+          <div class="stat-card"><strong>4</strong><span>Capítulos</span></div>
+          <div class="stat-card"><strong>1</strong><span>Intento local</span></div>
+        </div>
+
+        <div class="start-options">
+          <label class="checkbox-row">
+            <input type="checkbox" id="shuffleQuestions" checked />
+            <span>Mezclar orden de las preguntas</span>
+          </label>
+          <label class="checkbox-row">
+            <input type="checkbox" id="shuffleAnswers" checked />
+            <span>Mezclar alternativas</span>
+          </label>
+        </div>
+
+        <button id="startBtn" class="btn btn-primary">Comenzar prueba</button>
+        <p class="small-note">Las preguntas se cargan desde <code>preguntas.json</code>, por lo que el banco puede crecer sin modificar la interfaz.</p>
+      </section>
+
+      <section id="quizScreen" class="hidden">
+        <div class="quiz-header panel compact-panel">
+          <div class="progress-row">
+            <span id="questionCounter">Pregunta 1 de 20</span>
+            <span id="scoreLive">0 correctas</span>
+          </div>
+          <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+        </div>
+
+        <article class="panel question-panel">
+          <div class="question-meta">
+            <span id="chapterBadge" class="badge"></span>
+            <span id="difficultyBadge" class="badge badge-muted"></span>
+          </div>
+          <h2 id="questionText"></h2>
+          <div id="answersContainer" class="answers"></div>
+
+          <div id="feedbackBox" class="feedback hidden" aria-live="polite"></div>
+
+          <div class="action-row">
+            <button id="submitBtn" class="btn btn-primary" disabled>Responder</button>
+            <button id="nextBtn" class="btn btn-secondary hidden">Siguiente</button>
+          </div>
+        </article>
+      </section>
+
+      <section id="resultScreen" class="hidden">
+        <div class="panel results-panel">
+          <span class="eyebrow">Resultado</span>
+          <h2>Tu desempeño en MaxHack</h2>
+          <div class="result-score">
+            <div id="scoreCircle" class="score-circle"><span id="scorePercent">0%</span></div>
+            <div>
+              <p id="scoreText" class="score-text"></p>
+              <p id="resultMessage" class="lead"></p>
+            </div>
+          </div>
+
+          <h3>Desempeño por capítulo</h3>
+          <div id="chapterResults" class="chapter-results"></div>
+
+          <details class="review-block">
+            <summary>Revisar respuestas</summary>
+            <div id="reviewContainer"></div>
+          </details>
+
+          <div class="action-row">
+            <button id="restartBtn" class="btn btn-primary">Intentar nuevamente</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="errorScreen" class="panel hidden">
+        <h2>No se pudo cargar la base de preguntas</h2>
+        <p>Abre esta carpeta usando un servidor local o publícala en GitHub Pages. No abras <code>index.html</code> directamente con doble clic.</p>
+        <pre>python -m http.server 8000</pre>
+        <p>Luego abre <strong>http://localhost:8000</strong> en tu navegador.</p>
+      </section>
+    </main>
+
+    <footer>
+      <span>MaxHack · MVP académico</span>
+      <span id="footerVersion">Banco v1.0</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
