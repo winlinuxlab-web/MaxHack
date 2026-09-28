@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="MaxHack - modo estudio interactivo de hacking ético" />
-  <title>MaxHack | Modo estudio</title>
+  <meta name="description" content="MaxHack - estudio adaptativo de hacking ético" />
+  <title>MaxHack | Estudio adaptativo</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -12,53 +12,46 @@
     <header class="topbar">
       <div class="brand">
         <div class="brand-mark">MH</div>
-        <div>
-          <h1>MaxHack</h1>
-          <p>Entrena · Practica · Mejora</p>
-        </div>
+        <div><h1>MaxHack</h1><p>Entrena · Practica · Mejora</p></div>
       </div>
       <div class="topbar-meta" id="topbarMeta"></div>
     </header>
 
     <main>
       <section id="startScreen" class="panel hero-panel">
-        <span class="eyebrow">Modo estudio</span>
-        <h2>Estudia Hacking Ético con práctica guiada</h2>
-        <p class="lead">Responde una pregunta a la vez. Después de cada respuesta recibirás retroalimentación inmediata y una explicación breve para reforzar el contenido.</p>
+        <span class="eyebrow">Modo estudio adaptativo</span>
+        <h2>Estudia Hacking Ético con refuerzo inteligente</h2>
+        <p class="lead">Cada sesión contiene 20 preguntas. MaxHack mantiene todos los capítulos en estudio y, a partir de tus resultados, aumenta gradualmente la práctica en los contenidos que necesitan más refuerzo.</p>
 
         <div class="stats-grid">
-          <div class="stat-card"><strong id="availableQuestions">20</strong><span>Preguntas disponibles</span></div>
+          <div class="stat-card"><strong id="availableQuestions">60</strong><span>Preguntas en el banco</span></div>
+          <div class="stat-card"><strong>20</strong><span>Preguntas por sesión</span></div>
           <div class="stat-card"><strong>4</strong><span>Capítulos</span></div>
-          <div class="stat-card"><strong>1</strong><span>Sesión de estudio</span></div>
         </div>
 
-        <div class="study-notice" role="note" aria-label="Aviso sobre el banco de preguntas">
-          <strong>Importante</strong>
-          <p>En cada intento, MaxHack puede cambiar el orden de las preguntas y de las alternativas. A medida que el banco crezca, también podrás recibir preguntas distintas entre una sesión y otra.</p>
+        <div id="adaptiveNotice" class="study-notice" role="note">
+          <strong>Cómo funciona tu estudio</strong>
+          <p id="adaptiveNoticeText">En la primera sesión recibirás una selección equilibrada. En las siguientes, MaxHack reforzará tus capítulos más débiles sin dejar de practicar los demás.</p>
         </div>
 
-        <button id="startBtn" class="btn btn-primary">Comenzar estudio</button>
+        <div id="previousPerformance" class="previous-performance hidden"></div>
+
+        <div class="action-row start-actions">
+          <button id="startBtn" class="btn btn-primary">Comenzar estudio</button>
+          <button id="resetBtn" class="btn btn-ghost">Reiniciar progreso adaptativo</button>
+        </div>
       </section>
 
       <section id="quizScreen" class="hidden">
         <div class="quiz-header panel compact-panel">
-          <div class="progress-row">
-            <span id="questionCounter">Pregunta 1 de 20</span>
-            <span id="scoreLive">0 correctas</span>
-          </div>
+          <div class="progress-row"><span id="questionCounter"></span><span id="scoreLive"></span></div>
           <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
         </div>
-
         <article class="panel question-panel">
-          <div class="question-meta">
-            <span id="chapterBadge" class="badge"></span>
-            <span id="difficultyBadge" class="badge badge-muted"></span>
-          </div>
+          <div class="question-meta"><span id="chapterBadge" class="badge"></span><span id="difficultyBadge" class="badge badge-muted"></span></div>
           <h2 id="questionText"></h2>
           <div id="answersContainer" class="answers"></div>
-
           <div id="feedbackBox" class="feedback hidden" aria-live="polite"></div>
-
           <div class="action-row">
             <button id="submitBtn" class="btn btn-primary" disabled>Responder</button>
             <button id="nextBtn" class="btn btn-secondary hidden">Siguiente</button>
@@ -72,40 +65,32 @@
           <h2>Tu avance en MaxHack</h2>
           <div class="result-score">
             <div id="scoreCircle" class="score-circle"><span id="scorePercent">0%</span></div>
-            <div>
-              <p id="scoreText" class="score-text"></p>
-              <p id="resultMessage" class="lead"></p>
-            </div>
+            <div><p id="scoreText" class="score-text"></p><p id="resultMessage" class="lead"></p></div>
           </div>
 
           <h3>Desempeño por capítulo</h3>
           <div id="chapterResults" class="chapter-results"></div>
 
-          <details class="review-block">
-            <summary>Revisar respuestas y explicaciones</summary>
-            <div id="reviewContainer"></div>
-          </details>
-
-          <div class="action-row">
-            <button id="restartBtn" class="btn btn-primary">Estudiar nuevamente</button>
+          <div class="next-session-box">
+            <strong>Próxima sesión</strong>
+            <p id="nextSessionMessage"></p>
+            <div id="nextDistribution" class="distribution-grid"></div>
           </div>
+
+          <details class="review-block"><summary>Revisar respuestas y explicaciones</summary><div id="reviewContainer"></div></details>
+          <div class="action-row"><button id="restartBtn" class="btn btn-primary">Continuar estudiando</button></div>
         </div>
       </section>
 
       <section id="errorScreen" class="panel hidden">
         <h2>No se pudo cargar la base de preguntas</h2>
-        <p>Abre esta carpeta usando un servidor local o publícala en GitHub Pages. No abras <code>index.html</code> directamente con doble clic.</p>
+        <p>Publica los archivos mediante GitHub Pages o usa un servidor local.</p>
         <pre>python -m http.server 8000</pre>
-        <p>Luego abre <strong>http://localhost:8000</strong> en tu navegador.</p>
       </section>
     </main>
 
-    <footer>
-      <span>MaxHack · Modo estudio</span>
-      <span id="footerVersion">Banco v1.1</span>
-    </footer>
+    <footer><span>MaxHack · Estudio adaptativo</span><span id="footerVersion">Banco v1.3</span></footer>
   </div>
-
   <script src="app.js"></script>
 </body>
 </html>
