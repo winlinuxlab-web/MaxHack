@@ -26,7 +26,7 @@ async function loadQuestions(){
     const data=await response.json();
     if(!Array.isArray(data)||!data.length) throw new Error("Banco vacío");
     state.questions=data.filter(q=>q.estado!=="Inactiva");
-    $("topbarMeta").textContent=`${state.questions.length} preguntas en el banco`;
+    $("topbarMeta").textContent="Aporte NMZ-2026";
     $("availableQuestions").textContent=state.questions.length;
     renderStartProgress();
   }catch(err){ console.error(err); showScreen("error"); }
